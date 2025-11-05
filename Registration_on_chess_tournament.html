@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Регистрация игроков</title>
+  <link rel="stylesheet" href="Reg_on_chess_tournament.css">
+ </head>
+<body>
+   <div class="container">
+      <h1>Добро пожаловать</h1>
+  <!-- Форма регистрации -->
+<div class="auth-form" id="registrationFormContainer">
+            <h2>Регистрация игроков</h2>
+  <form id="registrationForm" onsubmit="return validateRegistration();">
+  <input type="text" id="regLastName" placeholder="Фамилия" required />
+                   <span id="regLastNameError" class="error"></span>
+  <input type="text" id="regFirstName" placeholder="Имя" required />
+                   <span id="regFirstNameError" class="error"></span>
+				   
+  <input type="text" id="regMiddleName" placeholder="Отчество" required />
+                   <span id="regMiddleNameError" class="error"></span>
+				   
+  <input type="date" id="regBirthDate" placeholder="Дата рождения" required />
+                   <span id="regBirthDateError" class="error"></span>
+
+  <input type="text" id="regBirthPlace" placeholder="Место рождения" required />
+                   <span id="regBirthPlaceError" class="error"></span>
+				   
+  <input type="text" id="regPhone" pattern="^\+?[0-9\s\-]{7,15}$" placeholder="+7 999 999 99 99" required />
+                    <span id="regPhoneError" class="error"></span>	
+					
+  <input type="email" id="regEmail" placeholder="Электронная почта" required />
+                   <span id="regEmailError" class="error"></span>	
+	
+  <label for="consent"> 
+  <input type="checkbox" id="consent" name="consent" required />
+    Я согласен(-на) на обработку персональных данных и принимаю политику конфиденциальности</label>
+
+  <button type="submit">Зарегистрироваться</button>
+  <a href="Authorization-on-chess_tournament.html">Войти</a></p>
+</form>
+<script>
+</div>
+ </div> 
+<script src = "Logic_Form-Registration.js"></script> 
+</body>
+</html>
+  

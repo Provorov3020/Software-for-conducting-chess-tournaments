@@ -1,0 +1,87 @@
+ body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(to right, #74ebd5, #ACB6E5);
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 500px;
+            margin: 80px auto;
+            padding: 30px 40px;
+            background-color: #fff;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            border-radius: 12px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .error {
+            color: #e74c3c;
+            font-size: 0.85em;
+            margin-left: 5px;
+        }
+
+        .auth-form {
+            margin-top: 30px;
+        }
+
+        .auth-form input {
+            width: 100%;
+            padding: 15px 15px;
+			box-sizing: border-box;	
+            margin-bottom: 12px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 1em;
+            transition: border 0.3s ease;
+        }
+
+        .auth-form input:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 8px rgba(52, 152, 219, 0.2);
+        }
+		.auth-form input[type="checkbox"]#consent {
+            vertical-align: middle;
+            margin-top: 4px; /* или 3px — подберите опытным путём */
+            width: 18px;
+            height: 18px;
+        }
+
+        .auth-form button {
+            width: 100%;
+            padding: 12px;
+            background-color: #3498db;
+            color: white;
+            font-size: 1em;
+            font-weight: bold;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .auth-form button:hover {
+            background-color: #2980b9;
+        }
+
+        #loginFormContainer {
+            margin-top: 50px;
+        }
+		/* Стили для label с чекбоксом */
+        label[for="consent"] {
+            display: flex;
+            align-items: center;
+            cursor: pointer;
+        }
+
+        label[for="consent"] input[type="checkbox"] {
+            margin-right: 10px;
+        }
+
+		
