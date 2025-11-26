@@ -4,591 +4,610 @@
     <meta charset="UTF-8" />
     <title>Турниры</title>
     <link rel="stylesheet" href="Tournaments.css"/>
-	<main>
-	<nav>
-	    <a href="tournaments.html">Турниры</a>
-	    <a href="chess-tournament.html">Главная</a>
-	</nav>
-<section id="createTournamentSection">
- <div class="flex-container"> 
-   <div class="left-sidebar">
-      <div class="form-area">   
-	   <h2>Создать турнир</h2>
-	   <form id="createTournamentForm">
-	   <div class="form-group">
-            <label for="tournamentName">Название турнира</label>
-            <input type="text" id="tournamentName" required />
-			</div>
-			<div class="form-group">
-			<label for="tournamentDate">Дата проведения</label>
-			<input type="date" id="tournamentDate" required />
-			</div>
-			<div class="form-group">
-			<label for="tournamentTime">Время начала проведения</label>
-			<input type="time" id="tournamentTime" required />
-			</div>
-			<div class="form-group">
-			<label for="playerCount">Количество участников (2-10)</label>
-			<input type="number" id="playerCount" min="2" max="10" value="2" required />
-			</div>
-			<button class="styled-button" type="submit">Создать турнир</button>	
-			
-			</form>
-			<div class="error" id="createTournamentError">
-      </div>
-	  </div>	
-</div>  <div id="chessBoard"></div>
-	
-	  </div>
-	 </div>
-    </section>	
-          
-<div class="button-row">
-  <button class="styledbtnStart-button" id="btnStart">Запуск игры</button>
-  <button class="styledbtnPause-button" id="btnPause" disabled>Пауза</button>
-  <button class="styledbtnResume-button" id="btnResume" disabled>Возобновить</button>
-  <button class="styledbtnEnd-button" id="btnEnd" disabled>Завершить игру</button>
-  
-</div>
-	
-<div class="chessboard" aria-label="Шахматное поле"></div>
+    <style>
+        .highlight-check {
+            background-color: #ff6b6b !important;
+            animation: pulse 1s infinite;
+        }
 
-<div id="result"></div>
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+    </style>
 </head>
 <body>
-<script>
-  
-const chessboard = document.querySelector('.chessboard');
-  const size = 8;
-  let boardState = [
-    ["♜","♞","♝","♛","♚","♝","♞","♜"],
-    ["♟","♟","♟","♟","♟","♟","♟","♟"],
-    [".",".",".",".",".",".",".","."],
-    [".",".",".",".",".",".",".","."],
-    [".",".",".",".",".",".",".","."],
-    [".",".",".",".",".",".",".","."],
-    ["♙","♙","♙","♙","♙","♙","♙","♙"],
-    ["♖","♘","♗","♕","♔","♗","♘","♖"]
-  ];  
-  let selectedCell = null;
-  let selectedPos = null;
-  let turn = 'white'; // Ходят белые сеичас, потом чёрные и так далее
-  let gameActive = false; // разрешена ли игра
-  const resultDiv = document.getElementById('result');
-  // Кнопки
-  const btnStart = document.getElementById('btnStart');
-  const btnPause = document.getElementById('btnPause');
-  const btnResume = document.getElementById('btnResume');
-  const btnEnd = document.getElementById('btnEnd');
-
-  btnStart.addEventListener('click', () => {
-    if (!gameActive) {
-      gameActive = true;
-      turn = 'white';
-      selectedCell = null;
-      selectedPos = null;
-      resultDiv.textContent = 'Игра началась. Ходят белые.';
-	  
-	  // Заново расставляем фигуры по стартовой позиции (сброс состояния)
-    boardState = [
-      ["♜","♞","♝","♛","♚","♝","♞","♜"],
-      ["♟","♟","♟","♟","♟","♟","♟","♟"],
-      [".",".",".",".",".",".",".","."],
-      [".",".",".",".",".",".",".","."],
-      [".",".",".",".",".",".",".","."],
-      [".",".",".",".",".",".",".","."],
-      ["♙","♙","♙","♙","♙","♙","♙","♙"],
-      ["♖","♘","♗","♕","♔","♗","♘","♖"]
-    ];
-
-      btnStart.disabled = true;
-      btnPause.disabled = false;
-      btnResume.disabled = true;
-      btnEnd.disabled = false;
-      createBoard();
-    }
-  });
-   btnPause.addEventListener('click', () => {
-    if (gameActive) {
-      gameActive = false;
-      deselectCell();
-      resultDiv.textContent = 'Игра на паузе...';
-      btnPause.disabled = true;
-      btnResume.disabled = false;
-    }
-  });
-
-  btnResume.addEventListener('click', () => {
-    if (!gameActive) {
-      gameActive = true;
-      resultDiv.textContent = `Игра возобновлена. Ходят ${turn === 'white' ? 'белые' : 'чёрные'}.`;
-      btnPause.disabled = false;
-      btnResume.disabled = true;
-    }
-  });
-
-  btnEnd.addEventListener('click', () => {
-    if (gameActive || btnStart.disabled) {
-      gameActive = false;
-      deselectCell();
-      resultDiv.textContent = 'Игра завершена.';
-      btnStart.disabled = false;
-      btnPause.disabled = true;
-      btnResume.disabled = true;
-      btnEnd.disabled = true;
-      // Можно добавить здесь логику подсчёта и объявления победителя (упрощённо, как пример)
-      announceWinner();
-    }
-  });
-  
-
-  function createBoard() {
-    chessboard.innerHTML = '';
-   for (let row = 0; row < size; row++) {
-    for (let col = 0; col < size; col++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');	  
-      // Определяем цвет клетки
-      if ((row + col) % 2 === 0) {
-        cell.classList.add('light');
-      } else {
-        cell.classList.add('dark');
-      }
-	  cell.dataset.row = row;
-      cell.dataset.col = col;
-
-      const piece = boardState[row][col];
-      if (piece !== '.') {
-        const pieceSpan = document.createElement('span');
-        pieceSpan.textContent = piece;
-        // Определяем цвет фигуры
-        pieceSpan.classList.add(row <= 1 ? 'black-piece' : 'white-piece');
-		
-		
-        cell.appendChild(pieceSpan);
-      }
-      cell.addEventListener('click', onCellClick);
-      chessboard.appendChild(cell);
-    }
-  }
-}
-
-// Проверяем, находится ли король цвета turn под шахом
-function isCheck(turn) {
-  const kingPos = findKingPosition(turn);
-  if (!kingPos) return false; // нет короля, значит игра окончена
-  
-  // Проверяем, атакуют ли какую-либо фигуру соперника позиции короля
-  const opponent = (turn === 'white') ? 'black' : 'white';
-  return isSquareAttacked(kingPos.row, kingPos.col, opponent);
-}
-
-// Проверка, есть ли мат у игрока turn
-function isCheckmate(turn) {
-  if (!isCheck(turn)) return false; // мат только если шах
-
-  // Если нет ни одного хода, который выводит из шаха — мат
-  const moves = generateAllLegalMoves(turn);
-  for (let move of moves) {
-    if (!wouldBeInCheckAfterMove(move, turn)) {
-      return false; // есть ход, избавляющий от шаха
-    }
-  }
-  return true;
-}
-
-// Проверка пата для игрока turn
-function isStalemate(turn) {
-  if (isCheck(turn)) return false; // не пат, если шах
-  const moves = generateAllLegalMoves(turn);
-  // если ходов нет и шаха нет — пат
-  return moves.length === 0;
-}
-
-// Пример вспомогательной функции: найти позицию короля
-function findKingPosition(turn) {
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const piece = board[r][c];
-      if (piece && piece.type === 'king' && piece.color === turn) {
-        return {row: r, col: c};
-      }
-    }
-  }
-  return null; // не найден король
-}
-
-// Проверяем атакована ли клетка (row,col) фигурой цвета attackerColor
-function isSquareAttacked(row, col, attackerColor) {
-  // Итерация по всем фигурам attackerColor, проверка возможности захвата клетки (row,col)
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const piece = board[r][c];
-      if (piece && piece.color === attackerColor) {
-        if (canMove(r, c, row, col, attackerColor, true)) { 
-          // последний параметр true — игнорировать шахи для самоопределения атак (опционально)
-          return true;
-        }
-      }
-    }
-  }
-  return false;
-}
-
-// Генерируем все легальные ходы для игрока turn
-function generateAllLegalMoves(turn) {
-  const moves = [];
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      const piece = board[r][c];
-      if (piece && piece.color === turn) {
-        for (let tr = 0; tr < 8; tr++) {
-          for (let tc = 0; tc < 8; tc++) {
-            if ((r !== tr || c !== tc) && canMove(r, c, tr, tc, turn)) {
-              moves.push({from: {row: r, col: c}, to: {row: tr, col: tc}});
-            }
-          }
-        }
-      }
-    }
-  }
-  return moves;
-}
-
-// Проверка, будет ли шах после выполнения данного хода
-function wouldBeInCheckAfterMove(move, turn) {
-  // Сохраняем текущую доску
-  const tempBoard = copyBoard(board);
-
-  // Выполняем ход на временной доске
-  makeMoveOnBoard(tempBoard, move.from.row, move.from.col, move.to.row, move.to.col);
-
-  // Проверяем шах после хода
-  const kingPos = findKingPosition(turn, tempBoard);
-  if (!kingPos) return true; // нет короля - значит шах
-  
-  return isSquareAttackedOnBoard(tempBoard, kingPos.row, kingPos.col, (turn === 'white') ? 'black' : 'white');
-}
-// Подсветка короля шаха (например добавление css класса)
-function highlightKing(turn) {
-  const pos = findKingPosition(turn);
-  if (!pos) return;
-  const cell = document.querySelector(`[data-row='${pos.row}'][data-col='${pos.col}']`);
-  if (cell) cell.classList.add('highlight-check');
-}
-
-// Снятие подсветки шаха с короля
-function clearKingHighlight() {
-  document.querySelectorAll('.highlight-check').forEach(cell => cell.classList.remove('highlight-check'));
-}
-
-// Помощник: ищет позицию короля цвета turn
-function findKing(board, turn) {
-  const kingChar = turn === 'white' ? 'K' : 'k';
-  for (let r = 0; r < size; r++) {
-    for (let c = 0; c < size; c++) {
-      if (board[r][c] === kingChar) {
-        return {row: r, col: c};
-      }
-    }
-  }
-  return null;
-}
-
-function updateScore(side, points) {
-  // Логика обновления очков для игроков  
-  // Например, score белых и чёрных в переменных whiteScore, blackScore
-  if (side === 'white') whiteScore += points;
-  else if (side === 'black') blackScore += points;
-  updateScoreDisplay();
-}
-function highlightPossibleMoves(row, col) {
-    clearHighlights(); // Очистить старые подсветки
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            if (canMove(row, col, r, c, turn)) {
-                const cell = document.querySelector(`[data-row='${r}'][data-col='${c}']`);
-                if (cell) cell.classList.add('highlight');
-            }
-        }
-    }
-}
-function clearHighlights() {
-    document.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
-}
-
-function onCellClick(e) {
- if (!gameActive) return; // перемещать фигуры можно только при активной игре
-    const cell = e.currentTarget;
-    const row = +cell.dataset.row;
-    const col = +cell.dataset.col;
-    const piece = boardState[row][col];
-    const isTurnWhite = (turn === 'white');
-    // Если ничего не выделено, выбираем фигуру (свою фигуру)
-	 if (selectedCell === null) {
-      if (piece === '.') {
-        alert("Выберите фигуру для хода");
-        return;
-      }
-	  if (isTurnWhite && !isWhitePiece(piece)) {
-        alert("Сейчас ходят белые");
-        return;
-      }
-      if (!isTurnWhite && !isBlackPiece(piece)) {
-        alert("Сейчас ходят чёрные");
-        return;
-      }   
-     selectCell(cell, row, col);
-     highlightPossibleMoves(row, col);
-     return;
-    }
-      
-      
-    
-	// Если кликнули по той же клетке - снимаем выделение
-    if (row === selectedPos.row && col === selectedPos.col) {
-      deselectCell();	  
-      return;
-    }
-
- 	// Проверяем ход на допустимость
-    if (canMove(selectedPos.row, selectedPos.col, row, col, turn)) {
-      doMove(selectedPos.row, selectedPos.col, row, col);
-	  deselectCell();
-	  clearHighlights();
-	  
-	  
-	  
-	  
-	  
-	  
+    <main>
+        <nav>
+            <a href="tournaments.html">Турниры</a>
+            <a href="chess-tournament.html">Главная</a>
+        </nav>
+        <section id="createTournamentSection">
+            <div class="flex-container"> 
+                <div class="left-sidebar">
+                    <div class="form-area">   
+                        <h2>Создать турнир</h2>
+                        <form id="createTournamentForm">
+                            <div class="form-group">
+                                <label for="tournamentName">Название турнира</label>
+                                <input type="text" id="tournamentName" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="tournamentDate">Дата проведения</label>
+                                <input type="date" id="tournamentDate" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="tournamentTime">Время начала проведения</label>
+                                <input type="time" id="tournamentTime" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="playerCount">Количество участников (2-10)</label>
+                                <input type="number" id="playerCount" min="2" max="10" value="2" required />
+                            </div>
+                            <button class="styled-button" type="submit">Создать турнир</button>	
+                        </form>
+                        <div class="error" id="createTournamentError">
+                        </div>
+                    </div>	
+                </div>  
+                <div id="chessBoard"></div>
+            </div>
+        </section>	
+              
+        <div class="button-row">
+            <button class="styledbtnStart-button" id="btnStart">Запуск игры</button>
+            <button class="styledbtnPause-button" id="btnPause" disabled>Пауза</button>
+            <button class="styledbtnResume-button" id="btnResume" disabled>Возобновить</button>
+            <button class="styledbtnEnd-button" id="btnEnd" disabled>Завершить игру</button>
+        </div>
         
-	// Смена хода
-    turn = (turn === 'white') ? 'black' : 'white';  
-    resultDiv.textContent = `Ходят ${turn === 'white' ? 'белые' : 'чёрные'}.`;	 
+        <div class="chessboard" aria-label="Шахматное поле"></div>
+
+        <div id="result"></div>
+    </main>
+
+    <script>
+        const chessboard = document.querySelector('.chessboard');
+        const size = 8;
+        let boardState = [
+            ["♜","♞","♝","♛","♚","♝","♞","♜"],
+            ["♟","♟","♟","♟","♟","♟","♟","♟"],
+            [".",".",".",".",".",".",".","."],
+            [".",".",".",".",".",".",".","."],
+            [".",".",".",".",".",".",".","."],
+            [".",".",".",".",".",".",".","."],
+            ["♙","♙","♙","♙","♙","♙","♙","♙"],
+            ["♖","♘","♗","♕","♔","♗","♘","♖"]
+        ];  
+        let selectedCell = null;
+        let selectedPos = null;
+        let turn = 'white';
+        let gameActive = false;
+        const resultDiv = document.getElementById('result');
+        const btnStart = document.getElementById('btnStart');
+        const btnPause = document.getElementById('btnPause');
+        const btnResume = document.getElementById('btnResume');
+        const btnEnd = document.getElementById('btnEnd');
+
+        // --- Добавленные переменные для состояния игры ---
+        let isCheckState = { white: false, black: false };
+        let isCheckmateState = { white: false, black: false };
+        let isStalemateState = { white: false, black: false };
+
+        // --- НОВАЯ ФУНКЦИЯ: Проверка наличия короля на доске ---
+        function hasKing(color) {
+            const kingChar = color === 'white' ? '♔' : '♚';
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (boardState[r][c] === kingChar) {
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        // --- НОВАЯ ФУНКЦИЯ: Проверка шаха ---
+        function isCheck(turnColor) {
+            const kingChar = turnColor === 'white' ? '♔' : '♚';
+            let kingPos = null;
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (boardState[r][c] === kingChar) {
+                        kingPos = {row: r, col: c};
+                        break;
+                    }
+                }
+                if (kingPos) break;
+            }
+            if (!kingPos) return false;
+
+            const opponentColor = turnColor === 'white' ? 'black' : 'white';
+            const opponentPieces = opponentColor === 'white' ? '♙♖♘♗♕♔' : '♟♜♞♝♛♚';
+
+            // Проверим, атакует ли какая-либо фигура противника короля
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = boardState[r][c];
+                    if (opponentPieces.includes(piece)) {
+                        if (canMove(r, c, kingPos.row, kingPos.col, opponentColor, true)) {
+                            return true;
+                        }
+                    }
+                }
+            }
+            return false;
+        }
+
+        // --- НОВАЯ ФУНКЦИЯ: Проверка мата ---
+        function isCheckmate(turnColor) {
+            if (!isCheck(turnColor)) return false;
+
+            // Попробуем все возможные ходы для игрока
+            const playerPieces = turnColor === 'white' ? '♙♖♘♗♕♔' : '♟♜♞♝♛♚';
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = boardState[r][c];
+                    if (playerPieces.includes(piece)) {
+                        for (let tr = 0; tr < 8; tr++) {
+                            for (let tc = 0; tc < 8; tc++) {
+                                if (canMove(r, c, tr, tc, turnColor, false)) {
+                                    // Сделаем ход на временной доске
+                                    const originalTarget = boardState[tr][tc];
+                                    boardState[tr][tc] = boardState[r][c];
+                                    boardState[r][c] = '.';
+                                    
+                                    const stillInCheck = isCheck(turnColor);
+                                    
+                                    // Восстановим доску
+                                    boardState[r][c] = piece;
+                                    boardState[tr][tc] = originalTarget;
+                                    
+                                    if (!stillInCheck) {
+                                        return false; // Найден ход, избавляющий от шаха
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        // --- НОВАЯ ФУНКЦИЯ: Проверка пата ---
+        function isStalemate(turnColor) {
+            if (isCheck(turnColor)) return false; // Если шах, то не пат
+
+            // Проверим, есть ли возможные ходы
+            const playerPieces = turnColor === 'white' ? '♙♖♘♗♕♔' : '♟♜♞♝♛♚';
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    const piece = boardState[r][c];
+                    if (playerPieces.includes(piece)) {
+                        for (let tr = 0; tr < 8; tr++) {
+                            for (let tc = 0; tc < 8; tc++) {
+                                if (canMove(r, c, tr, tc, turnColor, false)) {
+                                    return false; // Найден возможный ход
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+
+        // --- МОДИФИЦИРОВАННАЯ ФУНКЦИЯ: canMove с параметром ignoreCheck ---
+        function canMove(fromRow, fromCol, toRow, toCol, turnColor, ignoreCheck = false) {
+            const piece = boardState[fromRow][fromCol];
+            const targetPiece = boardState[toRow][toCol];
+
+            if (fromRow === toRow && fromCol === toCol) return false;
+
+            // Проверка цвета фигуры
+            const isPieceWhite = isWhitePiece(piece);
+            const isPieceBlack = isBlackPiece(piece);
+            if (turnColor === 'white' && !isPieceWhite) return false;
+            if (turnColor === 'black' && !isPieceBlack) return false;
+
+            // Нельзя ходить на клетку со своей фигурой
+            if (targetPiece !== '.') {
+                const isTargetWhite = isWhitePiece(targetPiece);
+                const isTargetBlack = isBlackPiece(targetPiece);
+                if (isPieceWhite && isTargetWhite) return false;
+                if (isPieceBlack && isTargetBlack) return false;
+            }
+
+            const deltaRow = toRow - fromRow;
+            const deltaCol = toCol - fromCol;
+            const adRow = Math.abs(deltaRow);
+            const adCol = Math.abs(deltaCol);
+
+            // Пешка
+            if (piece === '♙' || piece === '♟') {
+                const forward = (piece === '♙') ? -1 : 1;
+                const startRow = (piece === '♙') ? 6 : 1;
+
+                // Ход вперед
+                if (deltaCol === 0) {
+                    if (deltaRow === forward && targetPiece === '.') return true;
+                    if (fromRow === startRow && deltaRow === 2 * forward &&
+                        targetPiece === '.' &&
+                        boardState[fromRow + forward][fromCol] === '.') return true;
+                    return false;
+                }
+
+                // По диагонали "поесть"
+                if (adCol === 1 && deltaRow === forward && targetPiece !== '.') {
+                    if ((piece === '♙' && isBlackPiece(targetPiece)) ||
+                        (piece === '♟' && isWhitePiece(targetPiece))) return true;
+                    return false;
+                }
+                return false;
+            }
+
+            // Ладья
+            if (piece === '♖' || piece === '♜') {
+                if (deltaRow !== 0 && deltaCol !== 0) return false;
+                if (!isPathClear(fromRow, fromCol, toRow, toCol)) return false;
+                return true;
+            }
+
+            // Конь
+            if (piece === '♘' || piece === '♞') {
+                if ((adRow === 2 && adCol === 1) || (adRow === 1 && adCol === 2)) return true;
+                return false;
+            }
+
+            // Слон
+            if (piece === '♗' || piece === '♝') {
+                if (adRow !== adCol) return false;
+                if (!isPathClear(fromRow, fromCol, toRow, toCol)) return false;
+                return true;
+            }
+
+            // Ферзь
+            if (piece === '♕' || piece === '♛') {
+                const straight = (deltaRow === 0 || deltaCol === 0);
+                const diagonal = (adRow === adCol);
+                if (!(straight || diagonal)) return false;
+                if (!isPathClear(fromRow, fromCol, toRow, toCol)) return false;
+                return true;
+            }
+
+            // Король
+            if (piece === '♔' || piece === '♚') {
+                if (adRow <= 1 && adCol <= 1) {
+                    // Если проверяем ход, а не просто атаку, проверим шах
+                    if (!ignoreCheck) {
+                        // Сделаем ход на временной доске и проверим шах
+                        const originalTarget = boardState[toRow][toCol];
+                        boardState[toRow][toCol] = boardState[fromRow][fromCol];
+                        boardState[fromRow][fromCol] = '.';
+                        
+                        const stillInCheck = isCheck(turnColor);
+                        
+                        // Восстановим доску
+                        boardState[fromRow][fromCol] = piece;
+                        boardState[toRow][toCol] = originalTarget;
+                        
+                        if (stillInCheck) return false;
+                    }
+                    return true;
+                }
+                return false;
+            }
+
+            return false;
+        }
+
+        // --- НОВАЯ ФУНКЦИЯ: Обновление состояния игры ---
+        function updateGameState() {
+            // Проверка на съедение короля
+            if (!hasKing('white')) {
+                resultDiv.textContent = 'Король белых съеден! Победили чёрные!';
+                gameActive = false;
+                return;
+            }
+            if (!hasKing('black')) {
+                resultDiv.textContent = 'Король чёрных съеден! Победили белые!';
+                gameActive = false;
+                return;
+            }
+
+            isCheckState.white = isCheck('white');
+            isCheckState.black = isCheck('black');
+            isCheckmateState.white = isCheckmate('white');
+            isCheckmateState.black = isCheckmate('black');
+            isStalemateState.white = isStalemate('white');
+            isStalemateState.black = isStalemate('black');
+
+            // Подсветка королей
+            clearKingHighlight();
+            if (isCheckState.white) {
+                highlightKing('white');
+            }
+            if (isCheckState.black) {
+                highlightKing('black');
+            }
+
+            // Вывод сообщений
+            if (isCheckmateState.white) {
+                resultDiv.textContent = 'Шах и мат! Победили чёрные!';
+                gameActive = false;
+            } else if (isCheckmateState.black) {
+                resultDiv.textContent = 'Шах и мат! Победили белые!';
+                gameActive = false;
+            } else if (isStalemateState.white || isStalemateState.black) {
+                resultDiv.textContent = 'Пат! Ничья!';
+                gameActive = false;
+            } else if (isCheckState[turn]) {
+                resultDiv.textContent = `Шах! Ходят ${turn === 'white' ? 'белые' : 'чёрные'}.`;
+            } else {
+                resultDiv.textContent = `Ходят ${turn === 'white' ? 'белые' : 'чёрные'}.`;
+            }
+        }
+
+        // --- НОВАЯ ФУНКЦИЯ: Подсветка короля ---
+        function highlightKing(turnColor) {
+            const kingChar = turnColor === 'white' ? '♔' : '♚';
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (boardState[r][c] === kingChar) {
+                        const cell = document.querySelector(`[data-row='${r}'][data-col='${c}']`);
+                        if (cell) cell.classList.add('highlight-check');
+                    }
+                }
+            }
+        }
+
+        // --- НОВАЯ ФУНКЦИЯ: Снятие подсветки королей ---
+        function clearKingHighlight() {
+            document.querySelectorAll('.highlight-check').forEach(cell => cell.classList.remove('highlight-check'));
+        }
+
+        function isPathClear(fromRow, fromCol, toRow, toCol) {
+            const deltaRow = toRow - fromRow;
+            const deltaCol = toCol - fromCol;
+
+            const stepRow = deltaRow === 0 ? 0 : deltaRow / Math.abs(deltaRow);
+            const stepCol = deltaCol === 0 ? 0 : deltaCol / Math.abs(deltaCol);
+
+            let currentRow = fromRow + stepRow;
+            let currentCol = fromCol + stepCol;
+
+            while (currentRow !== toRow || currentCol !== toCol) {
+                if (boardState[currentRow][currentCol] !== '.') return false;
+                currentRow += stepRow;
+                currentCol += stepCol;
+            }
+            return true;
+        }
         
-  
-} else {
-    alert("Неверный ход или клетка занята или ход не по правилам");
- } 
-}
+        function doMove(fromRow, fromCol, toRow, toCol) {
+            boardState[toRow][toCol] = boardState[fromRow][fromCol];
+            boardState[fromRow][fromCol] = '.';
 
-
-	  
-  function selectCell(cell, row, col) {
-    selectedCell = cell;
-    selectedPos = { row, col };
-    cell.classList.add('selected');
-  }
-
-  function deselectCell() {
-    if (selectedCell) {
-      selectedCell.classList.remove('selected');
-      selectedCell = null;
-      selectedPos = null;
-    }
-  }
-
-  function isWhitePiece(piece) {
-    return "♙♖♘♗♕♔".includes(piece);
-  }
-
-  function isBlackPiece(piece) {
-    return "♟♜♞♝♛♚".includes(piece);
-  }
-  function boardHasKing(color) {
-    const king = (color === 'white') ? '♔' : '♚';
-    return boardState.flat().includes(king);
-  }
-  
-  // 1. Функция построения карты атак фигурами игрока attackerColor.
-// Возвращает двумерный массив 8x8 с true на позициях, которые атакует противник.
-function buildAttackMap(attackerColor) {
-  const attackMap = Array(8).fill(null).map(() => Array(8).fill(false));
-
-  for (let r = 0; r < 8; r++) {
-    for (let c = 0; c < 8; c++) {
-      if (board[r][c] && board[r][c].color === attackerColor) {
-        // Для каждой фигуры attackerColor
-        // Получаем все клетки, на которые она может бить (move для атаки)
-        const attacks = getAttackedSquares(r, c, attackerColor);
-        for (const pos of attacks) {
-          attackMap[pos.row][pos.col] = true;
+            updateCell(fromRow, fromCol);
+            updateCell(toRow, toCol);
         }
-      }
-    }
-  }
-
-  return attackMap;
-}
-
-// 2. Функция получения клеток, которыми фигура на (row, col) атакует противника.
-// Учитывает особенности ходов и атак фигур (например, пешка ходит и бьёт по-разному).
-// Важно: король не атакует короля (не ставит шах ему).
-function getAttackedSquares(row, col, color) {
-  const piece = board[row][col];
-  if (!piece) return [];
-  const enemyColor = (color === 'white') ? 'black' : 'white';
-  let attackedSquares = [];
-
-  // Пример для пешки:
-  if (piece.type === 'pawn') {
-    const dir = (color === 'white') ? -1 : 1;
-    const attackRows = [row + dir];
-    const attackCols = [col - 1, col + 1];
-    for (const r of attackRows) {
-      for (const c of attackCols) {
-        if (r >= 0 && r < 8 && c >= 0 && c < 8) {
-          attackedSquares.push({row: r, col: c});
+        
+        function updateCell(row, col) {
+            const index = row * size + col;
+            const cell = chessboard.children[index];
+            cell.innerHTML = '';
+            const piece = boardState[row][col];
+            if (piece !== '.') {
+                const span = document.createElement('span');
+                span.textContent = piece;
+                span.classList.add(isWhitePiece(piece) ? 'white-piece' : 'black-piece');
+                cell.appendChild(span);
+            }
         }
-      }
-    }
-  }
-   // При этом для короля не добавляем клетки, занятые королём противника.
-  // Пример для короля: клетки вокруг, но если там стоит вражеский король — не добавляем.
-  if (piece.type === 'king') {
-    const directions = [
-      [-1, -1], [-1, 0], [-1, 1],
-      [0, -1],          [0, 1],
-      [1, -1],  [1, 0], [1, 1],
-    ];
-    for (const [dr, dc] of directions) {
-      const nr = row + dr, nc = col + dc;
-      if (nr >= 0 && nr < 8 && nc >= 0 && nc < 8) {
-        const targetPiece = board[nr][nc];
-        if (!targetPiece || targetPiece.color !== color) {
-          if (!(targetPiece && targetPiece.type === 'king' && targetPiece.color === enemyColor)) {
-            attackedSquares.push({row: nr, col: nc});
-          }
+
+        function highlightPossibleMoves(row, col) {
+            clearHighlights();
+            for (let r = 0; r < 8; r++) {
+                for (let c = 0; c < 8; c++) {
+                    if (canMove(row, col, r, c, turn, false)) {
+                        const cell = document.querySelector(`[data-row='${r}'][data-col='${c}']`);
+                        if (cell) cell.classList.add('highlight');
+                    }
+                }
+            }
         }
-      }
-    }
-  }
-  return attackedSquares;
-}
 
-  // Проверка на подвижность + основные шахматные правила ходов
-  function canMove(fromRow, fromCol, toRow, toCol, turn)
-    {
-    const piece = boardState[fromRow][fromCol];
-    const targetPiece = boardState[toRow][toCol];
+        function clearHighlights() {
+            document.querySelectorAll('.highlight').forEach(cell => cell.classList.remove('highlight'));
+        }
 
-    // Нельзя ходить на клетку со своей фигурой
-    if (targetPiece !== '.') {
-      if (turn === 'white' && isWhitePiece(targetPiece)) return false;
-      if (turn === 'black' && isBlackPiece(targetPiece)) return false;
-    }
-	
-	const deltaRow = toRow - fromRow;
-	const deltaCol = toCol - fromCol;
-	const adRow = Math.abs(deltaRow);
-	const adCol = Math.abs(deltaCol);
-	// Координаты ферзя (4-я строка, 1-й столбец) - индексация с 0
-    const queenRow = 4;
-    const queenCol = 1;
+        function selectCell(cell, row, col) {
+            selectedCell = cell;
+            selectedPos = { row, col };
+            cell.classList.add('selected');
+        }
 
-    // Пешка
-    if (piece === '♙' || piece === '♟') {
-      const forward = (piece === '♙') ? -1 : 1; // белые идут вверх (row уменьшается)
-      const startRow = (piece === '♙') ? 6 : 1;
+        function deselectCell() {
+            if (selectedCell) {
+                selectedCell.classList.remove('selected');
+                selectedCell = null;
+                selectedPos = null;
+            }
+        }
 
-      // Ход вперед
-      if (deltaCol === 0) {
-        if (deltaRow === forward && targetPiece === '.') return true;
-        if (fromRow === startRow && deltaRow === 2 * forward &&
-            targetPiece === '.' &&
-            boardState[fromRow + forward][fromCol] === '.') return true;
-        return false;
-      }
-	  
-	  // По диагонали "поесть"
-      if (adCol === 1 && deltaRow === forward && targetPiece !== '.') {
-        if ((piece === '♙' && isBlackPiece(targetPiece)) ||
-            (piece === '♟' && isWhitePiece(targetPiece))) return true;
-        return false;
-      }
-      return false;
-    }
-	// Ладья ♖♜ - ходит по вертикали и горизонтали, любые клетки свободны
-    if (piece === '♖' || piece === '♜') {
-      if (deltaRow !== 0 && deltaCol !== 0) return false;
-      if (!isPathClear(fromRow, fromCol, toRow, toCol)) return false;
-      return true;
-    }
-	// Конь ♘♞ - ходит буквой "Г" (2+1)
-    if (piece === '♘' || piece === '♞') {
-      if ((adRow === 2 && adCol === 1) || (adRow === 1 && adCol === 2)) return true;
-	  return false;
-	  }
-	  // Слон ♗♝ - по диагонали, путь свободен
-    if (piece === '♗' || piece === '♝') {
-      if (adRow !== adCol) return false;
-      if (!isPathClear(fromRow, fromCol, toRow, toCol)) return false;
-      return true;
-    }
-	
-	 // Ферзь ♕♛ - сочетание ладьи и слона
-    if (piece === '♕' || piece === '♛') {
-      const straight = (deltaRow === 0 || deltaCol === 0);
-      const diagonal = (adRow === adCol);
-      if (!(straight || diagonal)) return false;
-      if (!isPathClear(fromRow, fromCol, toRow, toCol)) return false;
-      return true;
-    }
-	
-	// Король ♔♚ - ходит на одну клетку в любом направлении
-    if (piece === '♔' || piece === '♚') {
-      if (adRow <= 1 && adCol <= 1) return true;
-      return false;
-    }
+        function isWhitePiece(piece) {
+            return "♙♖♘♗♕♔".includes(piece);
+        }
 
-    return false;
-  }
-      
+        function isBlackPiece(piece) {
+            return "♟♜♞♝♛♚".includes(piece);
+        }
 
-  // Проверка открытости пути (без учета коня, который может перепрыгивать)
-  function isPathClear(fromRow, fromCol, toRow, toCol) {
-    const deltaRow = toRow - fromRow;
-    const deltaCol = toCol - fromCol;
+        // --- МОДИФИЦИРОВАННАЯ ФУНКЦИЯ: onCellClick ---
+        function onCellClick(e) {
+            if (!gameActive) return;
+            if (isCheckmateState.white || isCheckmateState.black || isStalemateState.white || isStalemateState.black) return;
 
-    const stepRow = deltaRow === 0 ? 0 : deltaRow / Math.abs(deltaRow);
-    const stepCol = deltaCol === 0 ? 0 : deltaCol / Math.abs(deltaCol);
+            const cell = e.currentTarget;
+            const row = +cell.dataset.row;
+            const col = +cell.dataset.col;
+            const piece = boardState[row][col];
+            const isTurnWhite = (turn === 'white');
 
-    let currentRow = fromRow + stepRow;
-    let currentCol = fromCol + stepCol;
+            if (selectedCell === null) {
+                if (piece === '.') {
+                    return;
+                }
+                if (isTurnWhite && !isWhitePiece(piece)) {
+                    return;
+                }
+                if (!isTurnWhite && !isBlackPiece(piece)) {
+                    return;
+                }   
+                selectCell(cell, row, col);
+                highlightPossibleMoves(row, col);
+                return;
+            }
 
-    while (currentRow !== toRow || currentCol !== toCol) {
-      if (boardState[currentRow][currentCol] !== '.') return false;
-      currentRow += stepRow;
-      currentCol += stepCol;
-    }
-    return true;
-  }
-  
-  function doMove(fromRow, fromCol, toRow, toCol) {
-    boardState[toRow][toCol] = boardState[fromRow][fromCol];
-    boardState[fromRow][fromCol] = '.';
+            if (row === selectedPos.row && col === selectedPos.col) {
+                deselectCell();
+                return;
+            }
 
-    updateCell(fromRow, fromCol);
-    updateCell(toRow, toCol);
-  }
-  
+            if (canMove(selectedPos.row, selectedPos.col, row, col, turn, false)) {
+                // Сделаем ход
+                const originalTarget = boardState[row][col];
+                boardState[row][col] = boardState[selectedPos.row][selectedPos.col];
+                boardState[selectedPos.row][selectedPos.col] = '.';
 
-  function updateCell(row, col) {
-    const index = row * size + col;
-    const cell = chessboard.children[index];
-    cell.innerHTML = '';
-    const piece = boardState[row][col];
-    if (piece !== '.') {
-      const span = document.createElement('span');
-      span.textContent = piece;
-	  span.classList.add(row <= 1 ? 'black-piece' : 'white-piece');
-      cell.appendChild(span);
-    }
-  }
+                updateCell(selectedPos.row, selectedPos.col);
+                updateCell(row, col);
 
-  createBoard();
-</script>
+                deselectCell();
+                clearHighlights();
 
+                // Проверим состояние игры после хода
+                turn = (turn === 'white') ? 'black' : 'white';
+                updateGameState();
+            } else {
+                // Попробуем выбрать другую фигуру
+                if (piece !== '.' && 
+                    ((isTurnWhite && isWhitePiece(piece)) || (!isTurnWhite && isBlackPiece(piece)))) {
+                    deselectCell();
+                    selectCell(cell, row, col);
+                    highlightPossibleMoves(row, col);
+                } else {
+                    deselectCell();
+                    clearHighlights();
+                }
+            }
+        }
+
+        function createBoard() {
+            chessboard.innerHTML = '';
+            for (let row = 0; row < size; row++) {
+                for (let col = 0; col < size; col++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');	  
+                    if ((row + col) % 2 === 0) {
+                        cell.classList.add('light');
+                    } else {
+                        cell.classList.add('dark');
+                    }
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+
+                    const piece = boardState[row][col];
+                    if (piece !== '.') {
+                        const pieceSpan = document.createElement('span');
+                        pieceSpan.textContent = piece;
+                        pieceSpan.classList.add(isWhitePiece(piece) ? 'white-piece' : 'black-piece');
+                        cell.appendChild(pieceSpan);
+                    }
+                    cell.addEventListener('click', onCellClick);
+                    chessboard.appendChild(cell);
+                }
+            }
+        }
+
+        function announceWinner() {
+            // Простая логика - если игра завершена до мата/пата, то ничья
+            if (!isCheckmateState.white && !isCheckmateState.black) {
+                resultDiv.textContent = 'Игра завершена досрочно. Ничья.';
+            }
+        }
+
+        // --- МОДИФИЦИРОВАННАЯ ФУНКЦИЯ: btnStart click ---
+        btnStart.addEventListener('click', () => {
+            if (!gameActive) {
+                gameActive = true;
+                turn = 'white';
+                selectedCell = null;
+                selectedPos = null;
+                // Сброс состояний
+                isCheckState = { white: false, black: false };
+                isCheckmateState = { white: false, black: false };
+                isStalemateState = { white: false, black: false };
+                
+                resultDiv.textContent = 'Игра началась. Ходят белые.';
+            
+                boardState = [
+                    ["♜","♞","♝","♛","♚","♝","♞","♜"],
+                    ["♟","♟","♟","♟","♟","♟","♟","♟"],
+                    [".",".",".",".",".",".",".","."],
+                    [".",".",".",".",".",".",".","."],
+                    [".",".",".",".",".",".",".","."],
+                    [".",".",".",".",".",".",".","."],
+                    ["♙","♙","♙","♙","♙","♙","♙","♙"],
+                    ["♖","♘","♗","♕","♔","♗","♘","♖"]
+                ];
+
+                btnStart.disabled = true;
+                btnPause.disabled = false;
+                btnResume.disabled = true;
+                btnEnd.disabled = false;
+                createBoard();
+                updateGameState();
+            }
+        });
+
+        btnPause.addEventListener('click', () => {
+            if (gameActive) {
+                gameActive = false;
+                deselectCell();
+                resultDiv.textContent = 'Игра на паузе...';
+                btnPause.disabled = true;
+                btnResume.disabled = false;
+            }
+        });
+
+        btnResume.addEventListener('click', () => {
+            if (!gameActive) {
+                gameActive = true;
+                resultDiv.textContent = `Игра возобновлена. Ходят ${turn === 'white' ? 'белые' : 'чёрные'}.`;
+                btnPause.disabled = false;
+                btnResume.disabled = true;
+            }
+        });
+
+        // --- МОДИФИЦИРОВАННАЯ ФУНКЦИЯ: btnEnd click ---
+        btnEnd.addEventListener('click', () => {
+            if (gameActive || btnStart.disabled) {
+                gameActive = false;
+                deselectCell();
+                resultDiv.textContent = 'Игра завершена.';
+                btnStart.disabled = false;
+                btnPause.disabled = true;
+                btnResume.disabled = true;
+                btnEnd.disabled = true;
+                // Можно добавить здесь логику подсчёта и объявления победителя (упрощённо, как пример)
+                announceWinner();
+            }
+        });
+
+        createBoard();
+    </script>
 </body>
 </html>
