@@ -1,177 +1,193 @@
-   body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(to right, #74ebd5, #ACB6E5);
-            margin: 0;
-            padding: 10px;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-			justify-content: center;
-            padding-top: 20px;
-        }
-        header {
-            text-align: center;
-            padding: 20px 0 10px;
-        }
-        nav {
-			 display: flex;
-             justify-content: center;
-             gap: 20px; /* для отступа между ссылками */
-             margin-bottom: 20px;
-        }
-        nav a {
-            color: #222;
-            margin: 0 15px;
-            font-weight: 700;
-            text-decoration: none;
-            font-size: 1rem;
-        }
-        nav a.active {
-            text-decoration: underline;
-        }
-        table {
-            border-collapse: collapse;
-        }
-        td {
-           width: 50px;
-           height: 50px;
-           text-align: center;
-           vertical-align: middle;
-           font-size: 24px;
-        }
-        .white {
-           background-color: bisque;
-        }
-        .black {
-           background-color: sandybrown;
-        }
-		form-group {
-           margin-bottom: 10px; /* отступ между полями */
-        }
-		label {
-           display: block; /* делает метки максимально сверху над полем */
-           margin-bottom: 4px; /* отступ между меткой и полем */
-        }
+body {
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+   background: linear-gradient(to right, #74ebd5, #ACB6E5);
+   margin: 0;
+   padding: 10px;
+   min-height: 100vh;
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+   padding-top: 20px;
+}
+header {
+   text-align: center;
+   padding: 20px 0 10px;
+}
+nav {
+   display: flex;
+   justify-content: center;
+   gap: 20px; /* для отступа между ссылками */
+   margin-bottom: 20px;
+}
+nav a {
+   color: #222;
+   margin: 0 15px;
+   font-weight: 700;
+   text-decoration: none;
+   font-size: 1rem;
+}
+nav a.active {
+   text-decoration: underline;
+}
+table {
+   border-collapse: collapse;
+}
+td {
+   width: 50px;
+   height: 50px;
+   text-align: center;
+   vertical-align: middle;
+   font-size: 24px;
+}
+.white {
+   background-color: bisque;
+}
+.black {
+   background-color: sandybrown;
+}
+form-group {
+   margin-bottom: 10px; /* отступ между полями */
+}
+label {
+   display: block; /* делает метки максимально сверху над полем */
+   margin-bottom: 4px; /* отступ между меткой и полем */
+}
 
-        input {
-           width: 100%; /* если нужно, чтобы поля были шириной контейнера */
-           box-sizing: border-box; /* чтобы padding не выходил за рамки */
-		   padding: 12px 15px;
-           margin-bottom: 12px;
-           border: 1px solid #ccc;
-           border-radius: 8px;
-           font-size: 1em;
-           transition: border 0.3s ease;
-        }
-		.styled-button {
-           width: 100%;
-           box-sizing: border-box;
-           padding: 12px 15px;
-           margin-bottom: 12px;
-           border: 1px solid #ccc;
-           border-radius: 8px;
-           font-size: 1em;
-           transition: border 0.3s ease;
-           background-color: #A0522D;
-		   color: #fff;
-           cursor: pointer;
-        }
-		/* Контейнер для кнопок, раскладывающих их по горизонтали */
-        .button-row {
-           display: flex;
-           gap: 10px; /* Отступы между кнопками по горизонтали */
-		   margin-top: 20px; /* отступ сверху, чтобы был виден от шахматного поля */
-           margin-bottom: 12px; 
-		   
-        }		
-       .styledbtnStart-button {	
-           width: 20%; /* Определённый размер ширины */	   
-           padding: 8px 8px;
-           border: 1px solid #ccc;
-           border-radius: 8px;
-           font-size: 1em;
-           transition: border 0.3s ease;
-           background-color: #A0522D;
-           color: #fff;
-           cursor: pointer;  
-           align-items: center;	
-        }
-		.styledbtnPause-button {	
-           width: 20%; /* Определённый размер ширины */	   
-           padding: 8px 8px;
-           border: 1px solid #ccc;
-           border-radius: 8px;
-           font-size: 1em;
-           transition: border 0.3s ease;
-           background-color: #A0522D;
-           color: #fff;
-           cursor: pointer; 
-           align-items: center;		   
-        }
-		.styledbtnResume-button {	
-           width: 30%; /* Определённый размер ширины */	   
-           padding: 8px 8px;
-           border: 1px solid #ccc;
-           border-radius: 8px;
-           font-size: 1em;
-           transition: border 0.3s ease;
-           background-color: #A0522D;
-           color: #fff;
-           cursor: pointer;   
-           align-items: center;		   
-        } 
-		.styledbtnEnd-button {	
-           width: 25%; /* Определённый размер ширины */	   
-           padding: 8px 8px;
-           border: 1px solid #ccc;
-           border-radius: 8px;
-           font-size: 1em;
-           transition: border 0.3s ease;
-           background-color: #A0522D;
-           color: #fff;
-           cursor: pointer;          
-        } 
-        .form-area {
-           max-width: 300px;
-        } 
-       
-		.chessboard {
-           display: grid;
-           grid-template-columns: repeat(8, 50px);
-           grid-template-rows: repeat(8, 50px);
-           width: 400px;
-           height: 400px;
-           border: 2px solid #333;
-        }
-        .cell {
-           width: 50px;
-           height: 50px;
-           display: flex;
-           justify-content: center;
-           align-items: center;
-           font-family: "Arial Unicode MS", Arial, sans-serif;
-           font-size: 32px;
-           user-select: none;
-        }
-        .light {
-           background-color: bisque;
-        }
-        .dark {
-           background-color: sandybrown;
-        }
-        .black-piece {
-          color: black;
-        }
-	    .highlight {
-          background-color: gray; /* или любой другой цвет */
-		  cursor: pointer;
-        }
-		.highlight-check {
-          background-color: yellow; 
-        }
+input {
+   width: 100%; /* если нужно, чтобы поля были шириной контейнера */
+   box-sizing: border-box; /* чтобы padding не выходил за рамки */
+   padding: 12px 15px;
+   margin-bottom: 12px;
+   border: 1px solid #ccc;
+   border-radius: 8px;
+   font-size: 1em;
+   transition: border 0.3s ease;
+}
+.styled-button {
+   width: 100%;
+   box-sizing: border-box;
+   padding: 12px 15px;
+   margin-bottom: 12px;
+   border: 1px solid #ccc;
+   border-radius: 8px;
+   font-size: 1em;
+   transition: border 0.3s ease;
+   background-color: #A0522D;
+   color: #fff;
+   cursor: pointer;
+}
+/* Контейнер для кнопок, раскладывающих их по горизонтали */
+.button-row {
+   display: flex;
+   gap: 10px; /* Отступы между кнопками по горизонтали */
+   margin-top: 20px; /* отступ сверху, чтобы был виден от шахматного поля */
+   margin-bottom: 12px; 
 
-       
-</style>
+}		
+.styledbtnStart-button {	
+   width: 20%; /* Определённый размер ширины */	   
+   padding: 8px 8px;
+   border: 1px solid #ccc;
+   border-radius: 8px;
+   font-size: 1em;
+   transition: border 0.3s ease;
+   background-color: #A0522D;
+   color: #fff;
+   cursor: pointer;  
+   align-items: center;	
+}
+.styledbtnPause-button {	
+   width: 20%; /* Определённый размер ширины */	   
+   padding: 8px 8px;
+   border: 1px solid #ccc;
+   border-radius: 8px;
+   font-size: 1em;
+   transition: border 0.3s ease;
+   background-color: #A0522D;
+   color: #fff;
+   cursor: pointer; 
+   align-items: center;		   
+}
+.styledbtnResume-button {	
+   width: 30%; /* Определённый размер ширины */	   
+   padding: 8px 8px;
+   border: 1px solid #ccc;
+   border-radius: 8px;
+   font-size: 1em;
+   transition: border 0.3s ease;
+   background-color: #A0522D;
+   color: #fff;
+   cursor: pointer;   
+   align-items: center;		   
+} 
+.styledbtnEnd-button {	
+   width: 25%; /* Определённый размер ширины */	   
+   padding: 8px 8px;
+   border: 1px solid #ccc;
+   border-radius: 8px;
+   font-size: 1em;
+   transition: border 0.3s ease;
+   background-color: #A0522D;
+   color: #fff;
+   cursor: pointer;          
+}
 
-    
+#result {
+   text-align: center;
+   font-size: 18px;
+   font-weight: bold;
+   margin: 20px 0;
+   min-height: 25px;
+}
+
+.form-area {
+   max-width: 300px;
+} 
+
+.chessboard {
+   display: grid;
+   grid-template-columns: repeat(8, 50px);
+   grid-template-rows: repeat(8, 50px);
+   width: 400px;
+   height: 400px;
+   border: 2px solid #333;
+}
+.cell {
+   width: 50px;
+   height: 50px;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   font-family: "Arial Unicode MS", Arial, sans-serif;
+   font-size: 32px;
+   user-select: none;
+}
+.light {
+   background-color: bisque;
+}
+.dark {
+   background-color: sandybrown;
+}
+
+.selected {
+   background-color: #aec6cf !important;
+}
+
+.black-piece {
+   color: black;
+}
+.highlight {
+   background-color: rgba(144, 238, 144, 0.5);
+}
+
+.highlight-check {
+   background-color: #ff6b6b !important;
+   animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+   0% { opacity: 1; }
+   50% { opacity: 0.6; }
+   100% { opacity: 1; }
+}
